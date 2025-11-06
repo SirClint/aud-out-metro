@@ -9,6 +9,82 @@ A lightweight GUI metronome written in Python using Tkinter. It generates a shor
 - Config: `metronome_config.ini` (stores `last_bpm`)
 - Launcher script: `run_metronome.sh` (activates `venv` and runs `main.py`)
 
+## Installation
+
+### From Binary Releases
+
+1. Go to the [Releases](https://github.com/SirClint/aud-out-metro/releases) page
+2. Download the appropriate version for your operating system:
+   - Windows: `aud-out-metro-windows.exe`
+   - macOS: `aud-out-metro-macos`
+   - Linux: `aud-out-metro-linux`
+3. Run the downloaded executable
+
+### From Source
+
+#### Prerequisites
+
+- Python 3.8+
+- System dependencies:
+  
+  **Debian/Ubuntu:**
+  ```bash
+  sudo apt update
+  sudo apt install python3-venv python3-dev build-essential portaudio19-dev ffmpeg libasound2-dev
+  ```
+  
+  **macOS:**
+  ```bash
+  brew install portaudio ffmpeg pkg-config
+  export LDFLAGS="-L/opt/homebrew/lib"
+  export CPPFLAGS="-I/opt/homebrew/include"
+  ```
+  
+  **Windows:**
+  - Download and install [Python](https://www.python.org/downloads/)
+  - Visual C++ Build Tools (automatically prompted during PyAudio installation)
+
+#### Setup Development Environment
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/SirClint/aud-out-metro.git
+   cd aud-out-metro
+   ```
+
+2. Create and activate virtual environment:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+The following packages will be installed:
+- numpy==2.3.4
+- PyAudio==0.2.14
+- pydub==0.25.1
+- scipy==1.16.2
+- simpleaudio==1.0.4
+
+#### Building from Source
+
+1. Install PyInstaller:
+   ```bash
+   pip install pyinstaller
+   ```
+
+2. Build the executable:
+   ```bash
+   python build_app.py
+   ```
+
+The executable will be created in the `dist` directory.
+
 ## Features
 
 - Start/Stop metronome with GUI buttons

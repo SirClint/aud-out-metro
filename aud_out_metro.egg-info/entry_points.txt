@@ -1,0 +1,2 @@
+[console_scripts]
+aud-out-metro = main:main

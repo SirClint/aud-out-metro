@@ -112,38 +112,34 @@ class MetronomeApp:
 
     def increase_bpm(self):
         current_bpm = self.bpm.get()
-        new_bpm = current_bpm + 5
-        if new_bpm <= 300: # Set a reasonable upper limit
-            self.bpm.set(new_bpm)
-            self._prepare_audio_for_bpm(new_bpm)
-            if not self.is_playing:
-                self.beat_count = 0 # Reset beat count
-                self.counter_label.config(text=f"Beat: {self.beat_count}") # Update display
+        # Increase but cap to the upper limit
+        new_bpm = min(current_bpm + 5, 300)
+        self.bpm.set(new_bpm)
+        self._prepare_audio_for_bpm(new_bpm)
+        if not self.is_playing:
+            self.beat_count = 0  # Reset beat count
+            self.counter_label.config(text=f"Beat: {self.beat_count}")  # Update display
 
     def decrease_bpm(self):
         current_bpm = self.bpm.get()
-        new_bpm = current_bpm - 5
-        if new_bpm >= 30: # Set a reasonable lower limit
-            self.bpm.set(new_bpm)
-            self._prepare_audio_for_bpm(new_bpm)
-            if not self.is_playing:
-                self.beat_count = 0 # Reset beat count
-                self.counter_label.config(text=f"Beat: {self.beat_count}") # Update display
+        # Decrease but floor to the lower limit
+        new_bpm = max(current_bpm - 5, 30)
+        self.bpm.set(new_bpm)
+        self._prepare_audio_for_bpm(new_bpm)
+        if not self.is_playing:
+            self.beat_count = 0  # Reset beat count
+            self.counter_label.config(text=f"Beat: {self.beat_count}")  # Update display
 
     def update_bpm(self, event=None): # event=None to handle both direct calls and event bindings
         try:
             new_bpm = int(self.bpm_entry.get())
-            if 30 <= new_bpm <= 300: # Validate BPM range
-                self.bpm.set(new_bpm)
-                self._prepare_audio_for_bpm(new_bpm)
-                if not self.is_playing:
-                    self.beat_count = 0 # Reset beat count
-                    self.counter_label.config(text=f"Beat: {self.beat_count}")
-            else:
-                # If BPM is out of range, reset to current valid BPM
-                self.bpm_entry.delete(0, tk.END)
-                self.bpm_entry.insert(0, str(self.bpm.get()))
-                logging.warning(f"BPM out of range (30-300). Reset to {self.bpm.get()}.")
+            # Cap incoming BPM to allowed range
+            capped = max(30, min(300, new_bpm))
+            self.bpm.set(capped)
+            self._prepare_audio_for_bpm(capped)
+            if not self.is_playing:
+                self.beat_count = 0  # Reset beat count
+                self.counter_label.config(text=f"Beat: {self.beat_count}")
         except ValueError:
             # If input is not a valid integer, reset to current valid BPM
             self.bpm_entry.delete(0, tk.END)
@@ -151,15 +147,14 @@ class MetronomeApp:
             logging.warning(f"Invalid BPM input. Reset to {self.bpm.get()}.")
 
     def set_bpm(self, bpm_value):
-        if 30 <= bpm_value <= 300:
-            self.bpm.set(bpm_value)
-            self._prepare_audio_for_bpm(bpm_value)
-            if not self.is_playing:
-                self.beat_count = 0
-                self.counter_label.config(text=f"Beat: {self.beat_count}")
-            logging.info(f"BPM set to {bpm_value}.")
-        else:
-            logging.warning(f"Attempted to set BPM out of range: {bpm_value}.")
+        # Cap any incoming BPM value to the allowed range
+        capped = max(30, min(300, bpm_value))
+        self.bpm.set(capped)
+        self._prepare_audio_for_bpm(capped)
+        if not self.is_playing:
+            self.beat_count = 0
+            self.counter_label.config(text=f"Beat: {self.beat_count}")
+        logging.info(f"BPM set to {capped}.")
 
     def create_widgets(self):
         # Modernized UI: gradient background with a centered card

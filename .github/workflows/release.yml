@@ -1,0 +1,101 @@
+name: Build Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pyinstaller
+    - name: Build
+      run: python build_app.py
+    - name: Rename artifact
+      run: |
+        mv dist/aud-out-metro.exe dist/aud-out-metro-windows.exe
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-build
+        path: dist/aud-out-metro-windows.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        brew install portaudio
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pyinstaller
+    - name: Build
+      run: python build_app.py
+    - name: Rename artifact
+      run: |
+        mv dist/aud-out-metro dist/aud-out-metro-macos
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-build
+        path: dist/aud-out-metro-macos
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev portaudio19-dev
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pyinstaller
+    - name: Build
+      run: python build_app.py
+    - name: Rename artifact
+      run: |
+        mv dist/aud-out-metro dist/aud-out-metro-linux
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-build
+        path: dist/aud-out-metro-linux
+
+  create-release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    - name: Create SHA256SUMS
+      run: |
+        cd windows-build && sha256sum * > ../SHA256SUMS.txt && cd ..
+        cd macos-build && sha256sum * >> ../SHA256SUMS.txt && cd ..
+        cd linux-build && sha256sum * >> ../SHA256SUMS.txt && cd ..
+    - name: Upload to release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          windows-build/*
+          macos-build/*
+          linux-build/*
+          SHA256SUMS.txt
